@@ -1,6 +1,6 @@
 import datetime
 from functools import partial
-from resources.lib.kodimon import DirectoryItem, VideoItem
+from resources.lib.kodimon import DirectoryItem, VideoItem, KodimonException
 from resources.lib.kodimon.helper import FunctionCache
 
 __author__ = 'bromix'
@@ -50,8 +50,18 @@ class Provider(kodimon.AbstractProvider):
         for post in posts:
             title = post['og_title']
             image = _get_image(post.get('thumbnails', {}))
+
+            video = post['video']
+            video_type = video['type']
+            if video_type == 'youtube':
+                video_id = video['external_id']
+                video_url = 'plugin://plugin.video.youtube/?action=play_video&videoid=' + video_id
+                pass
+            else:
+                raise KodimonException("Unknown video type '%s'" % video_item)
+
             video_item = VideoItem(title,
-                                   '',
+                                   video_url,
                                    image=image)
             video_item.set_fanart(self.get_fanart())
 
@@ -61,6 +71,11 @@ class Provider(kodimon.AbstractProvider):
             # date
             created = datetime.datetime.fromtimestamp(int(post['created']))
             video_item.set_aired(created.year, created.month, created.day)
+
+            # duration
+            video = post['video']
+            duration = int(video['duration'])
+            video_item.set_duration_in_seconds(duration)
 
             result.append(video_item)
             pass
