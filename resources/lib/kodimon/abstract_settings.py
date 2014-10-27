@@ -3,6 +3,7 @@ class AbstractSettings(object):
     LOGIN_PASSWORD = 'kodimon.login.password'
     LOGIN_HASH = 'kodimon.login.hash'
     ACCESS_TOKEN = 'kodimon.access_token'
+    ACCESS_TOKEN_EXPIRES = 'kodimon.access_token.expires'
 
     def __init__(self):
         object.__init__(self)

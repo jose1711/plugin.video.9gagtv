@@ -1,6 +1,7 @@
 import hashlib
 import os
 import re
+import time
 
 
 class AbstractProvider(object):
@@ -529,7 +530,29 @@ class AbstractProvider(object):
         settings = self.get_plugin().get_settings()
         return settings.get_string(AbstractSettings.ACCESS_TOKEN, '')
 
-    def update_access_token(self, access_token):
+    def is_access_token_expired(self):
+        """
+        Returns True if the access_token is expired otherwise False.
+        If no expiration date was provided and an access_token exists
+        this method will always return True
+        :return:
+        """
+        from abstract_settings import AbstractSettings
+        settings = self.get_plugin().get_settings()
+
+        # with no access_token it must be expired
+        if not settings.get_string(AbstractSettings.ACCESS_TOKEN, ''):
+            return True
+
+        # in this case no expiration date was set
+        expires = settings.get_int(AbstractSettings.ACCESS_TOKEN_EXPIRES, -1)
+        if expires == -1:
+            return False
+
+        now = time.time()
+        return expires <= now
+
+    def update_access_token(self, access_token, time_in_seconds=None):
         """
         Updates the old access token with the new one.
         :param access_token:
@@ -539,6 +562,9 @@ class AbstractProvider(object):
 
         settings = self.get_plugin().get_settings()
         settings.set_string(AbstractSettings.ACCESS_TOKEN, access_token)
+        if time_in_seconds is not None:
+            settings.set_int(AbstractSettings.ACCESS_TOKEN_EXPIRES, int(time_in_seconds))
+            pass
         pass
 
     pass
