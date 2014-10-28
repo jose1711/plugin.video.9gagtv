@@ -13,17 +13,17 @@ class Provider(kodimon.AbstractProvider):
         kodimon.AbstractProvider.__init__(self, plugin)
 
         from . import Client
+        access_manager = self.get_access_manager()
 
-        access_token = self.get_access_token()
-        self._client = Client(access_token=access_token)
-
-        if self.is_access_token_expired():
-            access_token, expires = self._client.authenticate()
-            self.update_access_token(access_token, expires)
-
-            # create a new instance with the current token
-            self._client = Client(access_token=access_token)
+        if access_manager.is_access_token_expired():
+            access_token, expires = self._client = Client().authenticate()
+            access_manager.update_access_token(access_token, expires)
+            self._client = Client(access_token)
+        else:
+            access_token = access_manager.get_access_token()
+            self._client = Client(access_token)
             pass
+
         pass
 
     @kodimon.RegisterPath('^/category/(?P<category_id>.+?)/$')

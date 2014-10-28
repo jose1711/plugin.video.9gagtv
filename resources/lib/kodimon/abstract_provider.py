@@ -473,98 +473,12 @@ class AbstractProvider(object):
 
         return create_plugin_uri(self._plugin, path, params)
 
-    def has_login_credentials(self):
+    def get_access_manager(self):
         """
-        Returns True if we have a username and password.
-        :return: True if username and password exists
+        Returns an AccessManager to help with credentials and access_tokens
+        :return: AccessManager
         """
-        from abstract_settings import AbstractSettings
-
-        settings = self.get_plugin().get_settings()
-        username = settings.get_string(AbstractSettings.LOGIN_USERNAME, '')
-        password = settings.get_string(AbstractSettings.LOGIN_PASSWORD, '')
-        return username != '' and password != ''
-
-    def get_login_credentials(self):
-        """
-        Returns the username and password (Tuple)
-        :return: (username, password)
-        """
-        from abstract_settings import AbstractSettings
-
-        settings = self.get_plugin().get_settings()
-        username = settings.get_string(AbstractSettings.LOGIN_USERNAME, '')
-        password = settings.get_string(AbstractSettings.LOGIN_PASSWORD, '')
-        return username, password
-
-    def is_new_login_credential(self, update_hash=True):
-        """
-        Returns True if username or/and password are new.
-        :return:
-        """
-        from abstract_settings import AbstractSettings
-
-        settings = self.get_plugin().get_settings()
-        username = settings.get_string(AbstractSettings.LOGIN_USERNAME, '')
-        password = settings.get_string(AbstractSettings.LOGIN_PASSWORD, '')
-
-        m = hashlib.md5()
-        m.update(username.encode('utf-8')+password.encode('utf-8'))
-        current_hash = m.hexdigest()
-        old_hash = settings.get_string(AbstractSettings.LOGIN_HASH, '')
-        if current_hash != old_hash:
-            if update_hash:
-                settings.set_string(AbstractSettings.LOGIN_HASH, current_hash)
-                pass
-            return True
-
-        return False
-
-    def get_access_token(self):
-        """
-        Returns the access token for some API
-        :return: access_token
-        """
-        from abstract_settings import AbstractSettings
-
-        settings = self.get_plugin().get_settings()
-        return settings.get_string(AbstractSettings.ACCESS_TOKEN, '')
-
-    def is_access_token_expired(self):
-        """
-        Returns True if the access_token is expired otherwise False.
-        If no expiration date was provided and an access_token exists
-        this method will always return True
-        :return:
-        """
-        from abstract_settings import AbstractSettings
-        settings = self.get_plugin().get_settings()
-
-        # with no access_token it must be expired
-        if not settings.get_string(AbstractSettings.ACCESS_TOKEN, ''):
-            return True
-
-        # in this case no expiration date was set
-        expires = settings.get_int(AbstractSettings.ACCESS_TOKEN_EXPIRES, -1)
-        if expires == -1:
-            return False
-
-        now = time.time()
-        return expires <= now
-
-    def update_access_token(self, access_token, time_in_seconds=None):
-        """
-        Updates the old access token with the new one.
-        :param access_token:
-        :return:
-        """
-        from abstract_settings import AbstractSettings
-
-        settings = self.get_plugin().get_settings()
-        settings.set_string(AbstractSettings.ACCESS_TOKEN, access_token)
-        if time_in_seconds is not None:
-            settings.set_int(AbstractSettings.ACCESS_TOKEN_EXPIRES, int(time_in_seconds))
-            pass
-        pass
+        from helper import AccessManager
+        return AccessManager(self._plugin.get_settings())
 
     pass
