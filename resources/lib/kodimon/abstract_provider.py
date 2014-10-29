@@ -457,6 +457,9 @@ class AbstractProvider(object):
 
         return False
 
+    def handle_exception(self, exception_to_handle):
+        return True
+
     def refresh_container(self):
         """
         Needs to be implemented by a mock for testing or the real deal.
@@ -464,6 +467,15 @@ class AbstractProvider(object):
         :return:
         """
         raise NotImplementedError()
+
+    def show_notification(self, message, header='', image_uri='', time_milliseconds=5000):
+        raise NotImplementedError()
+
+    def log(self, text, log_level=2):
+        from . import log
+        log_line = '[%s] %s' % (self.get_plugin().get_id(), text)
+        log(log_line, log_level)
+        pass
 
     def create_resource_path(self, *args):
         return self._plugin.create_resource_path(*args)

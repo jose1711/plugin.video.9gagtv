@@ -1,5 +1,6 @@
 import datetime
 from functools import partial
+import json
 from resources.lib.kodimon import DirectoryItem, VideoItem, KodimonException
 from resources.lib.kodimon.helper import FunctionCache
 
@@ -45,6 +46,10 @@ class Provider(kodimon.AbstractProvider):
         category_id = re_match.group('category_id')
         next_reference_key = params.get('next_reference_key', '')
         json_data = self._client.get_posts(category_id, next_reference_key)
+
+        self.log('client.get_posts(%s, %s)' % (category_id, next_reference_key), kodimon.constants.LOG_DEBUG)
+        self.log(json.dumps(json_data), kodimon.constants.LOG_DEBUG)
+
         data = json_data['data'][0]
         posts = data['posts']
         for post in posts:
@@ -99,6 +104,10 @@ class Provider(kodimon.AbstractProvider):
         result = []
 
         json_data = self.call_function_cached(partial(self._client.get_available), seconds=FunctionCache.ONE_HOUR)
+
+        self.log('client.get_available()', kodimon.constants.LOG_DEBUG)
+        self.log(json.dumps(json_data), kodimon.constants.LOG_DEBUG)
+
         categories = json_data.get('data', {}).get('lists', [])
         for category in categories:
             title = category['name']
