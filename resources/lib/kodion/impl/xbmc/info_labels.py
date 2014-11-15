@@ -51,6 +51,10 @@ def _process_video_dateadded(info_labels, param):
 
 def _process_video_duration(info_labels, param):
     if param is not None:
+        if int(param) < 60:
+            param = 60
+            pass
+        
         minutes = int(param) / 60
         seconds = int(param) % 60
         info_labels['duration'] = '%02d:%02d' % (minutes, seconds)
