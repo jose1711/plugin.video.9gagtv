@@ -99,10 +99,7 @@ class Provider(kodion.AbstractProvider):
             new_params.update(params)
             new_params['next_reference_key'] = next_reference_key
             page = int(params.get('page', 1))
-            next_page_item = kodion.items.create_next_page_item(context,
-                                                                page,
-                                                                path,
-                                                                new_params)
+            next_page_item = kodion.items.create_next_page_item(context, page)
             next_page_item.set_fanart(self.get_fanart(context))
             result.append(next_page_item)
             pass
