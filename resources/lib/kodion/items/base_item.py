@@ -9,10 +9,14 @@ class BaseItem(object):
     def __init__(self, name, uri, image=u'', fanart=u''):
         self._version = BaseItem.VERSION
         self._name = unicode(name)
-        self._uri = unicode(uri)
-        self._image = image
+        self._uri = str(uri)
+
+        self._image = u''
+        self.set_image(image)
+
         self._fanart = fanart
         self._context_menu = None
+        self._replace_context_menu = False
         self._date = None
         pass
 
@@ -43,6 +47,15 @@ class BaseItem(object):
         """
         return self._name
 
+    def set_uri(self, uri):
+        if isinstance(uri, str):
+            self._uri = uri
+            pass
+        else:
+            self._uri = ''
+            pass
+        pass
+
     def get_uri(self):
         """
         Returns the path of the item.
@@ -51,7 +64,12 @@ class BaseItem(object):
         return self._uri
 
     def set_image(self, image):
-        self._image = image
+        if image is None:
+            self._image = ''
+            pass
+        else:
+            self._image = image
+            pass
         pass
 
     def get_image(self):
@@ -64,12 +82,16 @@ class BaseItem(object):
     def get_fanart(self):
         return self._fanart
 
-    def set_context_menu(self, context_menu):
+    def set_context_menu(self, context_menu, replace=False):
         self._context_menu = context_menu
+        self._replace_context_menu = replace
         pass
 
     def get_context_menu(self):
         return self._context_menu
+
+    def replace_context_menu(self):
+        return self._replace_context_menu
 
     def set_date(self, year, month, day, hour=0, minute=0, second=0):
         date = datetime.datetime(year, month, day, hour, minute, second)

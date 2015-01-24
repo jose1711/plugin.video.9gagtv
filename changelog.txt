@@ -1,3 +1,6 @@
+1.0.3~beta1 (2015-01-24)
+UPD: kodion
+
 1.0.2 (2014-12-07)
 FIX: pagination should work again :)
 

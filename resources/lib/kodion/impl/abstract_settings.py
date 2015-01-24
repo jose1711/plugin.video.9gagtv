@@ -60,10 +60,13 @@ class AbstractSettings(object):
         return self.get_int(constants.setting.ITEMS_PER_PAGE, 50, lambda x: (x + 1) * 5)
 
     def get_video_quality(self):
-        vq_dict = {0: 480,  # 576 seems not to work well
-                   1: 720,
-                   2: 1080,
-                   3: 2160}
+        vq_dict = {0: 240,
+                   1: 360,
+                   2: 480,  # 576 seems not to work well
+                   3: 720,
+                   4: 1080,
+                   5: 2160,
+                   6: 4320}
         vq = self.get_int(constants.setting.VIDEO_QUALITY, 1)
         return vq_dict[vq]
 
@@ -72,5 +75,14 @@ class AbstractSettings(object):
 
     def get_search_history_size(self):
         return self.get_int(constants.setting.SEARCH_SIZE, 50, lambda x: x * 10)
+
+    def is_setup_wizard_enabled(self):
+        return self.get_bool(constants.setting.SETUP_WIZARD, False)
+
+    def is_override_view_enabled(self):
+        return self.get_bool(constants.setting.VIEW_OVERRIDE, False)
+
+    def is_support_alternative_player_enabled(self):
+        return self.get_bool(constants.setting.SUPPORT_ALTERNATIVE_PLAYER, False)
 
     pass

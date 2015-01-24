@@ -1,14 +1,25 @@
 import re
 
-from .exceptions import KodimonException
+from .exceptions import KodionException
 from . import items
 from . import constants
+from . import utils
 
 
 class AbstractProvider(object):
     RESULT_CACHE_TO_DISC = 'cache_to_disc'  # (bool)
 
     def __init__(self):
+        self._local_map = {
+            'kodion.wizard.view.default': 30027,
+            'kodion.wizard.view.episodes': 30028,
+            'kodion.wizard.view.movies': 30029,
+            'kodion.wizard.view.tvshows': 30032,
+            'kodion.wizard.view.songs': 30033,
+            'kodion.wizard.view.artists': 30034,
+            'kodion.wizard.view.albums': 30035
+        }
+
         # map for regular expression (path) to method (names)
         self._dict_path = {}
 
@@ -46,8 +57,60 @@ class AbstractProvider(object):
         :return:
         """
         self._dict_path[re_path] = method_name
+        pass
+
+    def _process_wizard(self, context):
+        def _setup_views(_context, view):
+            view_manager = utils.ViewManager(_context)
+            if not view_manager.update_view_mode(_context.localize(self._local_map['kodion.wizard.view.%s' % view]),
+                                                 view):
+                return
+
+            _context.get_settings().set_bool(constants.setting.VIEW_OVERRIDE, True)
+            pass
+
+        # start the setup wizard
+        wizard_steps = []
+        if context.get_settings().is_setup_wizard_enabled():
+            context.get_settings().set_bool(constants.setting.SETUP_WIZARD, False)
+
+            if utils.ViewManager(context).has_supported_views():
+                views = self.get_wizard_supported_views()
+                for view in views:
+                    if view in utils.ViewManager.SUPPORTED_VIEWS:
+                        wizard_steps.append((_setup_views, [context, view]))
+                        pass
+                    else:
+                        context.log_warning('[Setup-Wizard] Unsupported view "%s"' % view)
+                        pass
+                    pass
+                pass
+            else:
+                skin_id = context.get_ui().get_skin_id()
+                context.log("ViewManager: Unknown skin id '%s'" % skin_id)
+                pass
+
+            wizard_steps.extend(self.get_wizard_steps(context))
+            pass
+
+        if wizard_steps and context.get_ui().on_yes_no_input(context.get_name(),
+                                                             context.localize(constants.localize.SETUP_WIZARD_EXECUTE)):
+            for wizard_step in wizard_steps:
+                wizard_step[0](*wizard_step[1])
+                pass
+            pass
+        pass
+
+    def get_wizard_supported_views(self):
+        return ['default']
+
+    def get_wizard_steps(self, context):
+        # can be overridden by the derived class
+        return []
 
     def navigate(self, context):
+        self._process_wizard(context)
+
         path = context.get_path()
 
         for key in self._dict_path:
@@ -64,7 +127,7 @@ class AbstractProvider(object):
                 pass
             pass
 
-        raise KodimonException("Mapping for path '%s' not found" % path)
+        raise KodionException("Mapping for path '%s' not found" % path)
 
     def on_extra_fanart(self, context, re_match):
         """
@@ -235,8 +298,7 @@ class AbstractProvider(object):
             result = []
 
             # 'New Search...'
-            new_search_item = items.create_new_search_item(context)
-            new_search_item.set_fanart(self.get_alternative_fanart(context))
+            new_search_item = items.NewSearchItem(context, fanart=self.get_alternative_fanart(context))
             result.append(new_search_item)
 
             for search in search_history.list():
@@ -246,8 +308,8 @@ class AbstractProvider(object):
                     pass
 
                 # we create a new instance of the SearchItem
-                search_history_item = items.create_search_history_item(context, search)
-                search_history_item.set_fanart(self.get_alternative_fanart(context))
+                search_history_item = items.SearchHistoryItem(context, search,
+                                                              fanart=self.get_alternative_fanart(context))
                 result.append(search_history_item)
                 pass
             return result, {self.RESULT_CACHE_TO_DISC: False}

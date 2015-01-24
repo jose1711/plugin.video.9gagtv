@@ -4,7 +4,7 @@ import time
 __author__ = 'bromix'
 
 
-import requests
+from resources.lib.kodion import simple_requests as requests
 
 
 class Client(object):

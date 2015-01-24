@@ -17,6 +17,9 @@ class Provider(kodion.AbstractProvider):
         self._client = None
         pass
 
+    def get_wizard_supported_views(self):
+        return ['default', 'episodes']
+
     def _get_client(self, context):
         if not self._client:
             access_manager = context.get_access_manager()
@@ -101,8 +104,7 @@ class Provider(kodion.AbstractProvider):
             page = int(params.get('page', 1))
 
             new_context = context.clone(new_params=new_params)
-            next_page_item = kodion.items.create_next_page_item(new_context, page)
-            next_page_item.set_fanart(self.get_fanart(context))
+            next_page_item = kodion.items.NextPageItem(new_context, page, fanart=self.get_fanart(context))
             result.append(next_page_item)
             pass
 
