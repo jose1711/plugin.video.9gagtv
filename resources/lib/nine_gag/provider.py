@@ -73,7 +73,7 @@ class Provider(kodion.AbstractProvider):
                 pass
             elif video_type == 'vimeo':
                 video_id = video['id']
-                context.log_warning('Skippgin vimeo video "%s"' % video_id)
+                context.log_warning('Skipping vimeo video "%s"' % video_id)
                 continue
                 pass
             else:
