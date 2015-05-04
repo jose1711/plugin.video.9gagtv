@@ -1,3 +1,4 @@
+import locale
 import sys
 import urllib
 import urlparse
@@ -7,12 +8,15 @@ import xbmc
 import xbmcaddon
 import xbmcplugin
 import xbmcvfs
+import datetime
 from ..abstract_context import AbstractContext
 from .xbmc_plugin_settings import XbmcPluginSettings
 from .xbmc_context_ui import XbmcContextUI
 from .xbmc_system_version import XbmcSystemVersion
 from .xbmc_playlist import XbmcPlaylist
 from .xbmc_player import XbmcPlayer
+from ... import utils
+
 
 class XbmcContext(AbstractContext):
     def __init__(self, path='/', params=None, plugin_name=u'', plugin_id=u'', override=True):
@@ -24,7 +28,7 @@ class XbmcContext(AbstractContext):
             self._addon = xbmcaddon.Addon()
             pass
 
-        self._system_version = XbmcSystemVersion()
+        self._system_version = None
 
         """
         I don't know what xbmc/kodi is doing with a simple uri, but we have to extract the information from the
@@ -67,10 +71,31 @@ class XbmcContext(AbstractContext):
         Set the data path for this addon and create the folder
         """
         self._data_path = xbmc.translatePath('special://profile/addon_data/%s' % self._plugin_id)
+        if isinstance(self._data_path, str):
+            self._data_path = self._data_path.decode('utf-8')
+            pass
         if not xbmcvfs.exists(self._data_path):
             xbmcvfs.mkdir(self._data_path)
             pass
         pass
+
+    def format_date_short(self, date_obj):
+        date_format = xbmc.getRegion('dateshort')
+        _date_obj = date_obj
+        if isinstance(_date_obj, datetime.date):
+            _date_obj = datetime.datetime(_date_obj.year, _date_obj.month, _date_obj.day)
+            pass
+
+        return _date_obj.strftime(date_format)
+
+    def format_time(self, time_obj):
+        time_format = xbmc.getRegion('time')
+        _time_obj = time_obj
+        if isinstance(_time_obj, datetime.time):
+            _time_obj = datetime.time(_time_obj.hour, _time_obj.minute, _time_obj.second)
+            pass
+
+        return _time_obj.strftime(time_format)
 
     def get_language(self):
         if self.get_system_version().get_name() == 'Frodo':
@@ -86,6 +111,10 @@ class XbmcContext(AbstractContext):
             return 'en-US'
 
     def get_system_version(self):
+        if not self._system_version:
+            self._system_version = XbmcSystemVersion()
+            pass
+
         return self._system_version
 
     def get_video_playlist(self):
@@ -140,17 +169,18 @@ class XbmcContext(AbstractContext):
             if text_id >= 0 and (text_id < 30000 or text_id > 30999):
                 result = xbmc.getLocalizedString(text_id)
                 if result is not None and result:
-                    return result
+                    return utils.to_unicode(result)
                 pass
             pass
 
         result = self._addon.getLocalizedString(int(text_id))
         if result is not None and result:
-            return result
+            return utils.to_unicode(result)
 
-        return default_text
+        return utils.to_unicode(default_text)
 
     def set_content_type(self, content_type):
+        self.log_debug('Setting content-type: "%s" for "%s"' % (content_type, self.get_path()))
         xbmcplugin.setContent(self._plugin_handle, content_type)
         self.get_ui().set_view_mode(content_type)
         pass
