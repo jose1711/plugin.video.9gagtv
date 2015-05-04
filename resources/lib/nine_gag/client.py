@@ -1,9 +1,7 @@
-import hashlib
-import time
-
 __author__ = 'bromix'
 
-
+import hashlib
+import time
 from resources.lib.kodion import simple_requests as requests
 
 

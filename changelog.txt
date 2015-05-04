@@ -1,3 +1,7 @@
+2.0.0 (2015-05-04)
+UPD: moved to helix for support of YouTube 5.X.X
+UPD: kodion
+
 1.0.4 (2015-02-01)
 FIX: skipping vimeo videos (for now till a valid addon is available)
 
