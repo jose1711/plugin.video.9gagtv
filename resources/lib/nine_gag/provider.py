@@ -69,12 +69,11 @@ class Provider(kodion.AbstractProvider):
             video_type = video['type']
             if video_type == 'youtube':
                 video_id = video['external_id']
-                video_url = 'plugin://plugin.video.youtube/?action=play_video&videoid=' + video_id
+                video_url = 'plugin://plugin.video.youtube/play/?video_id=' + video_id
                 pass
             elif video_type == 'vimeo':
                 video_id = video['id']
-                context.log_warning('Skipping vimeo video "%s"' % video_id)
-                continue
+                video_url = 'plugin://plugin.video.vimeo/play/?video_id=' + video_id
                 pass
             else:
                 raise kodion.KodionException("Unknown video type '%s'" % video_type)
