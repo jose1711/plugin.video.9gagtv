@@ -123,8 +123,13 @@ class Provider(kodion.AbstractProvider):
         context.log_debug(json.dumps(json_data))
 
         categories = json_data.get('data', {}).get('lists', [])
+        make_bold = True
         for category in categories:
             title = category['name']
+            if make_bold:
+                title = '[B]%s[/B]' % title
+                make_bold = False
+                pass
             category_id = category['list_key']
             category_item = DirectoryItem(title,
                                           context.create_uri(['category', category_id]))
