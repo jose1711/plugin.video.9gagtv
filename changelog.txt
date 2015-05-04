@@ -1,6 +1,6 @@
 2.0.0 (2015-05-04)
 ADD: support for vimeo
-UPD: moved to helix for support of YouTube 5.X.X
+UPD: moved to helix for support of YouTube 5.X.X and Vimeo 4.X.X
 UPD: kodion
 
 1.0.4 (2015-02-01)
