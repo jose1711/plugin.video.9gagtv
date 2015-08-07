@@ -13,7 +13,12 @@ class TestClient(unittest.TestCase):
         pass
 
     def test_get_posts(self):
-        json_data = self._client.get_posts('LJEGX')
+        video_data = self._client.get_posts('LJEGX')
+        next_reference_key = video_data.get('next_reference_key', '')
+        while next_reference_key:
+            video_data = self._client.get_posts('LJEGX', next_reference_key=next_reference_key)
+            next_reference_key = video_data.get('next_reference_key', '')
+            pass
         pass
 
     def test_get_available(self):
